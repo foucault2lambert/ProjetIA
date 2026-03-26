@@ -1,13 +1,23 @@
 class Parameter:
-    def __init__(self):
-        self.WIDTH = 800
-        self.HEIGHT = 600
-        self.CHICKEN_COLOR = (0, 0, 255)  # Bleu
-        self.FOX_COLOR = (255, 000, 0)  # Rouge
-        self.SEED_COLOR = (0, 255, 0)  # Vert
-        self.NUM_CHICKENS = 20
-        self.NUM_FOXES = 5
+    def __init__(self,WIDTH, HEIGHT, CHICKEN_COLOR, FOX_COLOR, SEED_COLOR, NUM_CHICKENS, NUM_FOXES, NUM_SEED, CHICKEN_SIZE, FOX_SIZE, SEED_SIZE):
+        #taille de la fenetre
+        self.WIDTH = WIDTH
+        self.HEIGHT = HEIGHT
 
+        #couleurs
+        self.CHICKEN_COLOR = CHICKEN_COLOR
+        self.FOX_COLOR = FOX_COLOR
+        self.SEED_COLOR = SEED_COLOR
+
+        #nombre de poules, renard et graines
+        self.NUM_CHICKENS = NUM_CHICKENS
+        self.NUM_FOXES = NUM_FOXES
+        self.NUM_SEED = NUM_SEED
+
+        #taille des poules, renard et graines
+        self.CHICKEN_SIZE = CHICKEN_SIZE
+        self.FOX_SIZE = FOX_SIZE
+        self.SEED_SIZE = SEED_SIZE
 
     def getWIDTH(self):
         return self.WIDTH
@@ -28,3 +38,6 @@ class Parameter:
         return self.NUM_CHICKENS
     def getNUM_FOXES(self):
         return self.NUM_FOXES
+
+    def getNUM_SEED(self):
+        return self.NUM_SEED
