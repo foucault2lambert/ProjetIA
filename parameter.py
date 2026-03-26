@@ -5,6 +5,8 @@ class Parameter:
         self.CHICKEN_COLOR = (0, 0, 255)  # Bleu
         self.FOX_COLOR = (255, 000, 0)  # Rouge
         self.SEED_COLOR = (0, 255, 0)  # Vert
+        self.NUM_CHICKENS = 20
+        self.NUM_FOXES = 5
 
 
     def getWIDTH(self):
@@ -21,3 +23,8 @@ class Parameter:
 
     def getSEED_COLOR(self):
         return self.SEED_COLOR
+
+    def getNUM_CHICKENS(self):
+        return self.NUM_CHICKENS
+    def getNUM_FOXES(self):
+        return self.NUM_FOXES
