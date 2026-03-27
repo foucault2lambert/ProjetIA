@@ -15,13 +15,14 @@ class Animal:
                 "speed": 2.0,
                 "view_dist": 100.0,
                 "view_angle": 100.0,
-                "longevity": 500  #age max
+                "": 500  #age max
             }
         else:
             self.genes = genes  # Dictionnaire de traits mutables
         self.view_distance = genes.get('view_dist', 100)  # Portée en pixels
         self.view_angle = genes.get('view_angle', 10)  # Angle en degrés
-
+        self.longevity =  500 # Âge maximum
+        #self.genes['longevity', self.longevity]
     def drawVision(self, screen):
         # Dessiner le nez
         end_x = self.x + self.view_distance * math.cos(self.angle)
@@ -52,11 +53,12 @@ class Animal:
         self.y = self.y + self.genes['speed'] * math.sin(self.angle)
         self.energy -= self.genes['speed'] * 0.1  # Plus on va vite, plus on perd d'énergie
 
-    def age(self):
+    def older(self):
         self.age += 1
+        return self.age
 
     def isDie(self):
-        if self.age > 100 or self.energy <= 0:
+        if self.age > self.genes['longevity'] or self.energy <= 0:
             return True
         else:
             return False
