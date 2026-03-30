@@ -1,5 +1,8 @@
+import random
+
+
 class Parameter:
-    def __init__(self,WIDTH, HEIGHT, CHICKEN_COLOR, FOX_COLOR, SEED_COLOR, NUM_CHICKENS, NUM_FOXES, NUM_SEED, CHICKEN_SIZE, FOX_SIZE, SEED_SIZE):
+    def __init__(self,WIDTH, HEIGHT, CHICKEN_COLOR, FOX_COLOR, SEED_COLOR, NUM_CHICKENS, NUM_FOXES, NUM_SEED, CHICKEN_SIZE, FOX_SIZE, SEED_SIZE, CHICKENlONGEVITY, FOXlONGEVITY, SEEDlONGEVITY):
         #taille de la fenetre
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
@@ -18,6 +21,11 @@ class Parameter:
         self.CHICKEN_SIZE = CHICKEN_SIZE
         self.FOX_SIZE = FOX_SIZE
         self.SEED_SIZE = SEED_SIZE
+
+        #longevité des poules, renard et graines
+        self.CHICKENlONGEVITY = CHICKENlONGEVITY
+        self.FOXlONGEVITY = FOXlONGEVITY
+        self.SEEDlONGEVITY = SEEDlONGEVITY
 
     def getWIDTH(self):
         return self.WIDTH
@@ -41,3 +49,7 @@ class Parameter:
 
     def getNUM_SEED(self):
         return self.NUM_SEED
+
+    def randomizedChickenLife(self):
+        random_life = random.randint(self.CHICKENlONGEVITY - 150, self.CHICKENlONGEVITY + 150)
+        return random_life

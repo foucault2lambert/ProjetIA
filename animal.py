@@ -1,13 +1,12 @@
 import random
 import math
 import pygame
+import pygame.gfxdraw
 
 class Animal:
     def __init__(self, x, y, genes):
-        self.x = x
-        self.y = y
-        self.pos = pygame.Vector2(self.x, self.y)
-        self.angle = 90#pygame.Vector2(1,0)
+        self.pos = pygame.Vector2(x, y)
+        self.angle = pygame.Vector2(1,0)
         self.energy = 100
         self.age = 0
         if genes is None:
@@ -15,43 +14,27 @@ class Animal:
                 "speed": 2.0,
                 "view_dist": 100.0,
                 "view_angle": 100.0,
-                "": 500  #age max
+                "longevity": 500  #age max
             }
         else:
-            self.genes = genes  # Dictionnaire de traits mutables
-        self.view_distance = genes.get('view_dist', 100)  # Portée en pixels
-        self.view_angle = genes.get('view_angle', 10)  # Angle en degrés
-        self.longevity =  500 # Âge maximum
-        #self.genes['longevity', self.longevity]
-    def drawVision(self, screen):
-        # Dessiner le nez
-        end_x = self.x + self.view_distance * math.cos(self.angle)
-        end_y = self.y + self.view_distance * math.sin(self.angle)
-        pygame.draw.line(screen, (0, 0, 0), (self.x, self.y), (end_x, end_y), 5)
-        # Dessiner les cônes de vision
-        # Calculer les point exterieurs des lignes pour les côtés gauche et droit du cône de vision
-        left_angle = self.angle - ((self.view_angle )/ 2)
-        right_angle = self.angle + ((self.view_angle) / 2)
-        left_end_x = self.x + self.view_distance * math.cos(left_angle)
-        left_end_y = self.y + self.view_distance * math.sin(left_angle)
-        right_end_x = self.x + self.view_distance * math.cos(right_angle)
-        right_end_y = self.y + self.view_distance * math.sin(right_angle)
-        pygame.draw.line(screen, (0, 0, 0), (self.x, self.y), (right_end_x, right_end_y), 3)
-        pygame.draw.line(screen, (0, 0, 0), (self.x, self.y), (left_end_x, right_end_y), 3)
-        for i in range(1, 10):
-            left_end_x = self.x + self.view_distance * math.cos(left_angle- (self.view_angle/10) * i)
-            left_end_y = self.y + self.view_distance * math.sin(left_angle- (self.view_angle/10) * i)
-            #pygame.draw.line(screen, (25, 25, 25), (self.x, self.y), (left_end_x, left_end_y), 1)
-            #pygame.draw.line(screen, (25, 25, 25), (self.x, self.y), (right_end_x, right_end_y), 1)
-            #left_end_x = left_end_x + self.view_distance * math.cos(left_angle) * i / 10
-            #left_end_y = left_end_y + self.view_distance * math.sin(left_angle) * i / 10
+            self.genes = genes
+
+        self.view_distance = genes.get("view_dist", 100.0)  # Portée en pixels
+        self.view_angle = genes.get("view_angle", 100.0)  # Angle en degrés
+        self.longevity =  genes.get("longevity", 500) # Âge maximum
+
 
     def move(self):
-        # Logique de déplacement basée sur la vitesse (gène)
-        self.angle = random.uniform(0, 180)
-        self.x = self.x + self.genes['speed'] * math.cos(self.angle)
-        self.y = self.y + self.genes['speed'] * math.sin(self.angle)
-        self.energy -= self.genes['speed'] * 0.1  # Plus on va vite, plus on perd d'énergie
+        # 1. On tourne un peu au hasard (on modifie le vecteur vel)
+        rotation = random.uniform(-10, 10)  # Tourne de -10 à +10 degrés
+        self.angle.rotate_ip(rotation)
+
+        # 2. On avance dans la direction de self.vel
+        # La position est mise à jour en ajoutant le vecteur vitesse
+        self.pos += self.angle * self.genes['speed']
+
+        # 3. Coût en énergie
+        self.energy -= self.genes['speed'] * 0.1
 
     def older(self):
         self.age += 1
@@ -77,3 +60,65 @@ class Animal:
     def can_see(self):
         # fonction pour tester si dans le champs de vision de l'animal il y a une autre entité via du ray casyting
         pass
+
+    def drawVision(self, screen, color=(100, 100, 100, 50)):
+        #Récupération des paramètres (soit des gènes, soit des attributs)
+        view_dist = self.view_distance
+        view_angle = self.view_angle
+
+        #Si l'animal est immobile ou sans direction, on ne dessine rien.
+        if self.angle.length_squared() == 0:
+            return
+
+        # je récup l'angle de direction de l'animal en degrés (0° = vers la droite, 90° = vers le bas, etc.)
+        base_angle = self.angle.as_polar()[1]
+
+        # Un cône est un ensemble de vecteurs entre la Pos de l'animal et point_arc1, point_arc2, ..., point_arcN
+        points = []
+
+        # Premier point : le centre de l'animal
+        points.append((int(self.pos.x), int(self.pos.y)))
+
+        # Nombre de segments pour dessiner l'arc
+        num_segments = 15
+
+        # On calcule l'angle de départ et d'arrivée du cône
+        start_angle = base_angle - (view_angle / 2)
+        end_angle = base_angle + (view_angle / 2)
+
+        # On génère les points le long de l'arc de cercle
+        for i in range(num_segments + 1):
+            angle_deg = start_angle + (i * (view_angle / num_segments))
+
+            # Conversion en radians pour les fonctions math
+            angle_rad = math.radians(angle_deg)
+
+            # Calcul des coordonnées (x, y) du point sur l'arc
+            # x = pos_x + distance * cos(angle)
+            # y = pos_y + distance * sin(angle)
+            px = self.pos.x + math.cos(angle_rad) * view_dist
+            py = self.pos.y + math.sin(angle_rad) * view_dist
+
+            points.append((int(px), int(py)))
+
+        # --- 4. Dessin du polygone transparent ---
+        # pygame.gfxdraw.filled_polygon() est la clé ici.
+        # Attention : Contrairement à pygame.draw, gfxdraw ne gère pas
+        # automatiquement la transparence si on dessine directement sur l'écran.
+        # Il faut dessiner sur une surface intermédiaire (un "calque").
+
+        # Création d'une surface temporaire de la taille de l'écran avec gestion alpha
+        # (Cette étape peut être optimisée en créant une surface plus petite
+        # juste autour de l'animal, mais pour commencer, c'est plus simple comme ça).
+        overlay = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
+
+        # Dessiner le polygone rempli sur le calque
+        pygame.gfxdraw.filled_polygon(overlay, points, color)
+
+        # Dessiner le contour du polygone (optionnel, mais fait plus propre,
+        # utiliser un alpha un peu plus fort)
+        outline_color = (color[0], color[1], color[2], color[3] + 30)
+        pygame.gfxdraw.aapolygon(overlay, points, outline_color)  # aa = anti-aliased
+
+        # Appliquer le calque sur l'écran principal
+        screen.blit(overlay, (0, 0))
