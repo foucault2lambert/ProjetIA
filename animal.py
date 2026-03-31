@@ -25,16 +25,18 @@ class Animal:
 
 
     def move(self):
-        # 1. On tourne un peu au hasard (on modifie le vecteur vel)
+        # 1. On tourne un peu au hasard (on modifie le vecteur angle)
         rotation = random.uniform(-10, 10)  # Tourne de -10 à +10 degrés
         self.angle.rotate_ip(rotation)
 
-        # 2. On avance dans la direction de self.vel
+        # 2. On avance dans la direction de self.angle
         # La position est mise à jour en ajoutant le vecteur vitesse
         self.pos += self.angle * self.genes['speed']
 
         # 3. Coût en énergie
         self.energy -= self.genes['speed'] * 0.1
+        return self.pos, self.energy, self.energy
+
 
     def older(self):
         self.age += 1
